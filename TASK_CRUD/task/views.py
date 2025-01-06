@@ -15,26 +15,19 @@ def user_note(request,user):
         return Response(notes.data)
     
     if request.method=='POST':
-            data=request.data
-            note=NoteSerializer(data=data)
-            if note.is_valid():
-                note.save()
-                return Response(note.data,status=status.HTTP_201_CREATED)
-
-@api_view(['PUT','DELETE'])
-def modify_note(request,user,id):
-        if request.method=='PUT':
             try:
                 data=request.data
-                note=Note.objects.filter(user=user,id=id)
-                note_serialized=NoteSerializer(note,data=data,partial=True)
+                data['user']=user
+                note_serialized=NoteSerializer(data=data)
                 if note_serialized.is_valid():
-                    return Response(f'Note id:{id} updated')
+                    note_serialized.save()
+                    return Response(note_serialized.data,status=status.HTTP_201_CREATED)
                 else:
-                    return Response('Error Updating note') 
+                    return Response('Error addint note')
             except Exception as e:
-                print(f'error occured:{str(e)}')
-                return Response(f'error occured:{str(e)}')
+                print(str(e))
+                return Response(str(e))
+
         
 @api_view(['POST'])
 def add_task(request,user,note):
